@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vocabulary Studio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0c0c0e;
+      color: #f4f4f5;
+      min-height: 100vh;
+      padding: 60px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+    }
+
+    .header {
+      margin-bottom: 28px;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      color: #71717a;
+      font-size: 15px;
+    }
+
+    .bento-card {
+      background: #161618;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    textarea {
+      width: 100%;
+      height: 110px;
+      background: #0c0c0e;
+      color: #f4f4f5;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: #52525b;
+    }
+
+    textarea::placeholder {
+      color: #52525b;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 11px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-main {
+      background: #ffffff;
+      color: #0c0c0e;
+      flex: 2;
+      min-width: 140px;
+    }
+
+    .btn-main:hover {
+      background: #e4e4e7;
+    }
+
+    .btn-sub {
+      background: #27272a;
+      color: #a1a1aa;
+      flex: 1;
+      min-width: 110px;
+    }
+
+    .btn-sub:hover {
+      background: #3f3f46;
+      color: #ffffff;
+    }
+
+    .global-speed-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px 14px;
+      color: #a1a1aa;
+      background: #0c0c0e;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .global-speed-input {
+      flex: 1;
+      min-width: 80px;
+      accent-color: #ffffff;
+      cursor: pointer;
+    }
+
+    .global-speed-value {
+      min-width: 42px;
+      color: #ffffff;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .word-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .word-card {
+      background: #161618;
+      border: 1px solid #27272a;
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      user-select: text;
+      transition: border-color 0.2s ease, transform 0.1s ease;
+      min-height: 58px;
+    }
+
+    .word-card:hover {
+      border-color: #3f3f46;
+    }
+
+    .word-card:active {
+      transform: scale(0.99);
+    }
+
+    .word-num {
+      font-size: 14px;
+      font-weight: 700;
+      color: #71717a;
+      min-width: 26px;
+    }
+
+    .word-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 17px;
+      flex: 1;
+      min-width: 0;
+      line-height: 1.4;
+    }
+
+    .ukr-word {
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .dash {
+      color: #52525b;
+    }
+
+    .eng-word {
+      font-weight: 500;
+      color: #f4f4f5;
+      filter: blur(7px);
+      background: #27272a;
+      border-radius: 6px;
+      padding: 2px 8px;
+      transition: filter 0.2s ease, background 0.2s ease, color 0.2s ease;
+      display: inline-block;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .eng-word.revealed {
+      filter: blur(0);
+      background: transparent;
+      color: #a1a1aa;
+      padding: 0;
+    }
+
+    .audio-btn {
+      background: transparent;
+      border: none;
+      color: #71717a;
+      cursor: pointer;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s ease, background-color 0.2s ease;
+      
+      /* Сдвиг на 3px влево и 5px вверх */
+      transform: translate(-3px, -6px);
+      flex-shrink: 0;
+      order: 2;
+      margin-left: 2px;
+    }
+
+    .audio-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      display: block;
+    }
+
+    .audio-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 30px 14px;
+      }
+      .header h1 {
+        font-size: 26px;
+      }
+      .word-card {
+        padding: 14px;
+      }
+      .word-content {
+        gap: 5px;
+        font-size: 15px;
+      }
+      .global-speed-control {
+        gap: 8px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>Vocabulary</h1>
+      <p>Вставь слова которые хочешь выучить</p>
+    </div>
+    
+    <div class="bento-card">
+      <textarea id="wordsInput" placeholder="Вставляй список:&#10;* lecture — лекція&#10;1. club - клуб&#10;• apple : яблуко"></textarea>
+      
+      <div class="controls">
+        <button class="btn btn-main" onclick="generateCards()">Учить слова</button>
+        <button class="btn btn-sub" onclick="shuffleCards()">Перемешать</button>
+        <button class="btn btn-sub" id="toggleBtn" onclick="toggleRevealAll()">Открыть все</button>
+        <label class="global-speed-control" for="speedRange">
+          <span>Скорость озвучки</span>
+          <input class="global-speed-input" id="speedRange" type="range" min="0.25" max="2" step="0.25" value="0.75">
+          <span class="global-speed-value" id="speedValue">0.75x</span>
+        </label>
+      </div>
+    </div>
+
+    <div id="error" class="error-msg"></div>
+    <div class="word-list" id="wordList"></div>
+    <audio id="ttsAudio" preload="none"></audio>
+  </div>
+
+  <script>
+    let wordsData = [];
+    let currentAudio = null;
+    const defaultSpeechSpeed = Math.min(2, Math.max(0.25, Math.round((Number(localStorage.getItem('vocab_speech_speed')) || 0.75) / 0.25) * 0.25));
+    let speechSpeed = defaultSpeechSpeed;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedInput = localStorage.getItem('vocab_saved_text');
+      const speedRange = document.getElementById('speedRange');
+      const speedValue = document.getElementById('speedValue');
+      speedRange.value = speechSpeed;
+      speedValue.textContent = speechSpeed.toFixed(2) + 'x';
+
+      speedRange.addEventListener('input', event => {
+        speechSpeed = Number(event.target.value);
+        speedValue.textContent = speechSpeed.toFixed(2) + 'x';
+        localStorage.setItem('vocab_speech_speed', speechSpeed);
+      });
+
+      if (savedInput) {
+        document.getElementById('wordsInput').value = savedInput;
+        generateCards();
+      }
+
+      document.getElementById('wordsInput').addEventListener('input', (e) => {
+        localStorage.setItem('vocab_saved_text', e.target.value);
+      });
+    });
+
+    function speakWord(text, event) {
+      if (event) {
+        event.stopPropagation();
+      }
+
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+
+      const audio = document.getElementById('ttsAudio');
+      currentAudio = audio;
+      audio.pause();
+      audio.preload = 'auto';
+      audio.playsInline = true;
+      audio.volume = 1;
+      const applySpeed = () => {
+        audio.playbackRate = speechSpeed;
+      };
+      audio.addEventListener('loadedmetadata', applySpeed, { once: true });
+      applySpeed();
+
+      const googleHosts = ['translate.google.co.uk', 'translate.google.com'];
+      let hostIndex = 0;
+      let retrying = false;
+
+      const showAudioError = () => {
+        const errorDiv = document.getElementById('error');
+        errorDiv.textContent = 'Не удалось загрузить голос Google. Проверьте интернет-соединение.';
+        errorDiv.style.display = 'block';
+      };
+
+      const tryGoogleHost = () => {
+        if (retrying) return;
+        retrying = true;
+
+        if (hostIndex >= googleHosts.length) {
+          showAudioError();
+          return;
+        }
+
+        const ttsUrl = 'https://' + googleHosts[hostIndex++] + '/translate_tts?ie=UTF-8&client=tw-ob&tl=en-GB&total=1&idx=0&textlen=' + text.length + '&q=' + encodeURIComponent(text);
+        audio.src = ttsUrl;
+        applySpeed();
+        retrying = false;
+        audio.play().then(applySpeed).catch(tryGoogleHost);
+      };
+
+      audio.onerror = tryGoogleHost;
+      tryGoogleHost();
+    }
+
+    function parseInput() {
+      const input = document.getElementById('wordsInput').value.trim();
+      const errorDiv = document.getElementById('error');
+      errorDiv.style.display = 'none';
+
+      if (!input) {
+        errorDiv.textContent = 'Пожалуйста, вставьте список слов!';
+        errorDiv.style.display = 'block';
+        return [];
+      }
+
+      const lines = input.split('\n');
+      const list = [];
+
+      lines.forEach(line => {
+        line = line.replace(/^[*•\d.\s-]+/g, '').trim();
+        if (!line) return;
+
+        const parts = line.split(/[-–—:=\t]+/);
+
+        if (parts.length >= 2) {
+          const part1 = parts[0].trim();
+          const part2 = parts.slice(1).join(' ').trim();
+
+          let ukr = '';
+          let eng = '';
+
+          const isPart1English = /[a-zA-Z]/.test(part1);
+
+          if (isPart1English) {
+            eng = part1;
+            ukr = part2;
+          } else {
+            ukr = part1;
+            eng = part2;
+          }
+
+          if (ukr && eng) {
+            list.push({ ukr, eng, revealed: false });
+          }
+        }
+      });
+
+      if (list.length === 0) {
+        errorDiv.textContent = 'Не удалось распознать слова. Проверьте разделители (тире, дефис или двоеточие).';
+        errorDiv.style.display = 'block';
+      }
+
+      return list;
+    }
+
+    function generateCards() {
+      wordsData = parseInput();
+      renderCards();
+    }
+
+    function toggleWord(index) {
+      if (wordsData[index]) {
+        wordsData[index].revealed = !wordsData[index].revealed;
+        renderCards();
+      }
+    }
+
+    function renderCards() {
+      const container = document.getElementById('wordList');
+      container.innerHTML = '';
+
+      wordsData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'word-card';
+
+        const numSpan = document.createElement('span');
+        numSpan.className = 'word-num';
+        numSpan.textContent = String(index + 1).padStart(2, '0') + '.';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'word-content';
+
+        const ukrSpan = document.createElement('span');
+        ukrSpan.className = 'ukr-word';
+        ukrSpan.textContent = item.ukr;
+
+        const dashSpan = document.createElement('span');
+        dashSpan.className = 'dash';
+        dashSpan.textContent = '—';
+
+        const engSpan = document.createElement('span');
+        engSpan.className = 'eng-word' + (item.revealed ? ' revealed' : '');
+        engSpan.textContent = item.eng;
+        engSpan.title = 'Нажмите, чтобы открыть или скрыть слово';
+        engSpan.onclick = event => {
+          event.stopPropagation();
+          toggleWord(index);
+        };
+
+        const audioBtn = document.createElement('button');
+        audioBtn.className = 'audio-btn';
+        audioBtn.title = 'Прослушать произношение';
+        audioBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+        `;
+        audioBtn.onclick = (e) => speakWord(item.eng, e);
+
+        contentDiv.appendChild(ukrSpan);
+        contentDiv.appendChild(dashSpan);
+        contentDiv.appendChild(engSpan);
+        contentDiv.appendChild(audioBtn);
+
+        card.appendChild(numSpan);
+        card.appendChild(contentDiv);
+        container.appendChild(card);
+      });
+
+      updateToggleBtnText();
+    }
+
+    function shuffleCards() {
+      if (wordsData.length === 0) return;
+      
+      for (let i = wordsData.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [wordsData[i], wordsData[j]] = [wordsData[j], wordsData[i]];
+      }
+      renderCards();
+    }
+
+    function toggleRevealAll() {
+      if (wordsData.length === 0) return;
+
+      const areAllRevealed = wordsData.every(item => item.revealed);
+      const targetState = !areAllRevealed;
+
+      wordsData.forEach(item => item.revealed = targetState);
+      renderCards();
+    }
+
+    function updateToggleBtnText() {
+      const btn = document.getElementById('toggleBtn');
+      if (wordsData.length === 0) {
+        btn.textContent = 'Открыть все';
+        return;
+      }
+      
+      const areAllRevealed = wordsData.every(item => item.revealed);
+      btn.textContent = areAllRevealed ? 'Скрыть все' : 'Открыть все';
+    }
+  </script>
+</body>
+</html>
